@@ -1,6 +1,9 @@
 package calculator
 
-import "math"
+import (
+	"encoding/json"
+	"math"
+)
 
 // Result contains the calculated values for the mortgage bonus comparison.
 type Result struct {
@@ -35,6 +38,8 @@ type Result struct {
 	SavingsChangingInsurer       float64 `json:"savingsChangingInsurer"`
 	NetSavings                   float64 `json:"netSavings"`
 	DiscountedRate               float64 `json:"discountedRate"`
+	BankTariffMonthly            float64 `json:"bankTariffMonthly"`
+	InsuranceChartJSON           string  `json:"insuranceChartJSON"`
 }
 
 // NetSavingsForDisplay returns the savings amount as a positive magnitude for presentation.
@@ -161,7 +166,23 @@ func CalculateScenario(principal float64, years int, annualRatePct float64, age 
 		NetSavings:                   netSavings,
 		DiscountedRate:               discountedRate,
 		Compensates:                  netSavings > 0,
+		BankTariffMonthly:            BankInsurancePremium(principal, age),
+		InsuranceChartJSON:           insuranceChartJSON(principal),
 	}
+}
+
+func insuranceChartJSON(capital float64) string {
+	type point struct {
+		Age      int     `json:"age"`
+		Bank     float64 `json:"bank"`
+		External float64 `json:"external"`
+	}
+	points := make([]point, 0, 30)
+	for age := 30; age <= 59; age++ {
+		points = append(points, point{Age: age, Bank: BankInsurancePremium(capital, age), External: nnFallecimientoPremium(capital, age)})
+	}
+	data, _ := json.Marshal(points)
+	return string(data)
 }
 
 // CalculateCase computes the mortgage and insurance comparison.

@@ -18,6 +18,7 @@
                 <article class="rounded-2xl border border-stone-200 p-5"><h3 class="font-semibold text-slate-800">Seguro externo</h3><p class="mt-1 text-xs uppercase tracking-[0.15em] text-slate-500">Calculado</p><p data-live-external-monthly class="mt-4 text-xl font-semibold text-slateblue">{{ printf "%.2f" .result.ExternalInsuranceMonthly }} €/mes</p><p data-live-external-annual class="text-lg font-semibold text-slate-800">{{ printf "%.2f" .result.ExternalInsuranceAnnual }} €/año</p></article>
             </div>
             <p class="mt-4 text-sm text-slate-700">{{ if gt .result.InsuranceAnnualDifference 0.0 }}El seguro externo es <span data-live-insurance-difference>{{ printf "%.2f" .result.InsuranceAnnualDifference }}</span> €/año más barato.{{ else if lt .result.InsuranceAnnualDifference 0.0 }}El seguro del banco es <span data-live-insurance-difference>{{ printf "%.2f" .result.InsuranceAnnualDifferenceForDisplay }}</span> €/año más barato.{{ else }}Ambos seguros tienen el mismo coste anual.{{ end }}</p>
+            <div class="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-4"><h3 class="font-semibold text-slate-800">Primas orientativas por edad</h3><p class="mt-1 text-sm text-slate-600">Comparación de las dos matrices desde los 30 años para el capital indicado.</p><canvas data-insurance-chart data-chart-values="{{ .result.InsuranceChartJSON }}" class="mt-4 h-64 w-full" aria-label="Gráfico de primas de seguros por edad"></canvas></div>
         </section>
     </div>
 </section>

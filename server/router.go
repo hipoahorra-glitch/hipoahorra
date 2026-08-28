@@ -20,6 +20,7 @@ func NewRouter() *gin.Engine {
 	r.SetHTMLTemplate(template.Must(template.New("index.html").Funcs(template.FuncMap{
 		"formatNumber": formatNumber,
 		"printf":       formatPrintf,
+		"mul":          func(left, right float64) float64 { return left * right },
 	}).ParseFS(
 		webassets.FS,
 		"templates/*.html",
