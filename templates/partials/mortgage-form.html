@@ -1,24 +1,17 @@
 {{ define "mortgage-form.html" }}
-<section id="simulador" class="scroll-mt-24 px-4 py-10 sm:px-6 lg:px-8">
-    <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-        <div>
-            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-slateblue">Datos de la hipoteca</p>
-            <h2 class="text-3xl font-semibold text-slate-800">Complete los datos de su préstamo</h2>
-            <p class="mt-4 max-w-xl text-slate-600">
-                Los valores que introduzca le ayudarán a ver el impacto de la bonificación sobre su cuota mensual y
-                sobre el coste total del seguro.
-            </p>
-        </div>
-
-        <div
-            class="rounded-[28px] border border-stone-200 bg-gradient-to-br from-white via-stone-50 to-emerald-50/60 p-6 shadow-[0_25px_80px_rgba(15,23,42,0.06)] sm:p-8">
+<section id="simulador" class="scroll-mt-24">
+    <div class="rounded-[28px] border border-stone-200 bg-gradient-to-br from-white via-stone-50 to-emerald-50/60 p-6 shadow-[0_25px_80px_rgba(15,23,42,0.06)] sm:p-8">
+            <div class="mb-7">
+                <p class="mb-2 text-sm font-semibold uppercase tracking-[0.25em] text-slateblue">Datos de la hipoteca</p>
+                <h2 class="text-2xl font-semibold text-slate-800">Calcule su ahorro con bonificación de vida</h2>
+                <p class="mt-3 text-sm leading-6 text-slate-600">Introduzca los datos que le faltan para terminar de pagar y descubra cuánto puede ahorrar.</p>
+            </div>
             <div class="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
                 <p class="text-sm font-semibold text-emerald-700">En solo 30 segundos</p>
-                <p class="mt-1 text-sm text-slate-600">Complete los datos básicos y obtenga una comparación clara de su
-                    cuota y del seguro.</p>
+                <p class="mt-1 text-sm text-slate-600">La comparación se centra en el ahorro que genera la bonificación de vida.</p>
             </div>
 
-            <div data-live-result class="mb-6 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+            <div data-live-result class="mb-6 hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slateblue">Resumen en vivo</p>
                 <div class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -39,7 +32,7 @@
             <form action="/calcular#resultados" method="post" class="space-y-6">
                 <div class="grid gap-4 md:grid-cols-2">
                     <label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                        <span>Importe de la hipoteca</span>
+                        <span>Importe pendiente de la hipoteca</span>
                         <div class="relative">
                             <input type="number" step="0.01" name="mortgageAmount" inputmode="decimal"
                                 value="{{ if .form }}{{ .form.MortgageAmount }}{{ else }}150000{{ end }}" required
@@ -50,13 +43,13 @@
                         </div>
                     </label>
                     <label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                        <span>Años</span>
+                        <span>Años que te faltan por pagar</span>
                         <input type="number" name="years" value="{{ if .form }}{{ .form.Years }}{{ else }}25{{ end }}"
                             required placeholder="25"
                             class="min-h-[48px] rounded-2xl border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-slateblue" />
                     </label>
                     <label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                        <span>Interés anual (TIN)</span>
+                        <span>Interés anual (TIN) sin bonificación de vida</span>
                         <div class="relative">
                             <input type="number" step="0.01" name="annualInterest" inputmode="decimal"
                                 value="{{ if .form }}{{ .form.AnnualInterest }}{{ else }}3.0{{ end }}" required
@@ -75,12 +68,11 @@
                 </div>
 
                 <div class="rounded-2xl border border-stone-200 bg-white/90 p-4">
-                    <h3 class="text-base font-semibold text-slate-800">Bonificaciones hipotecarias</h3>
-                    <p class="mt-1 text-sm text-slate-500">Indique el porcentaje que le aplica el banco en cada
-                        concepto.</p>
+                    <h3 class="text-base font-semibold text-slate-800">Bonificación de vida</h3>
+                    <p class="mt-1 text-sm text-slate-500">Indique la rebaja del tipo de interés que le aplica el banco por contratar el seguro de vida.</p>
                     <div class="mt-4 grid gap-4 md:grid-cols-2">
                         <label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                            <span>Bonificación hogar</span>
+                            <span>Bonificación hogar (opcional)</span>
                             <div class="relative">
                                 <input type="number" step="0.01" name="homeInsuranceBonus" inputmode="decimal"
                                     value="{{ if .form }}{{ .form.HomeInsuranceBonus }}{{ else }}0.0{{ end }}"
@@ -102,7 +94,7 @@
                             </div>
                         </label>
                         <label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                            <span>Otras bonificaciones</span>
+                            <span>Otras bonificaciones (opcional)</span>
                             <div class="relative">
                                 <input type="number" step="0.01" name="otherBonuses" inputmode="decimal"
                                     value="{{ if .form }}{{ .form.OtherBonuses }}{{ else }}0.0{{ end }}"
@@ -124,9 +116,8 @@
                         </label>
                     </div>
                 </div>
-
+                <button type="submit" class="w-full rounded-2xl bg-slateblue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slateblue/20 transition hover:-translate-y-0.5 hover:bg-slate-700">Actualizar resultados</button>
             </form>
         </div>
-    </div>
 </section>
 {{ end }}

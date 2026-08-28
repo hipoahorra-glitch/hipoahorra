@@ -27,11 +27,19 @@
 <body class="bg-stone-50 text-slate-700 antialiased">
     {{ template "header.html" . }}
 
-    <main class="pt-8">
+    <main class="px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         {{ template "hero.html" . }}
-        {{ template "insurance-comparison.html" . }}
-        {{ template "mortgage-form.html" . }}
-        {{ if .result }}{{ template "results-cards.html" . }}{{ end }}
+        <div class="mx-auto max-w-7xl">
+            <header class="mb-10 max-w-3xl">
+                <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-slateblue">HipoAhorra</p>
+                <h1 class="text-4xl font-semibold leading-tight text-slate-800 sm:text-5xl">Comparador de ahorro hipotecario</h1>
+            </header>
+
+            <div class="grid items-start gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                {{ template "mortgage-form.html" . }}
+                {{ if .result }}{{ template "results-cards.html" . }}{{ end }}
+            </div>
+        </div>
         {{ template "contact-form.html" . }}
     </main>
 
