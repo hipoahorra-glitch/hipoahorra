@@ -35,12 +35,13 @@
                 <h1 class="text-4xl font-semibold leading-tight text-slate-800 sm:text-5xl">Comparador de ahorro hipotecario</h1>
             </header>
 
-            <div class="grid items-start gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div class="grid items-stretch gap-8 lg:grid-cols-2">
                 {{ template "mortgage-form.html" . }}
                 {{ if .result }}{{ template "results-cards.html" . }}{{ end }}
             </div>
         </div>
         {{ template "contact-form.html" . }}
+        {{ if .result }}{{ template "details.html" . }}{{ end }}
     </main>
 
     {{ template "footer.html" . }}

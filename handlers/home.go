@@ -15,13 +15,11 @@ import (
 
 func Home(c *gin.Context) {
 	form := defaultCalculationForm()
-	result := buildResult(form)
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"title":       "Comparador de ahorro hipotecario",
-		"result":      result,
 		"form":        form,
-		"showResults": true,
+		"showResults": false,
 	})
 }
 
@@ -63,14 +61,15 @@ func Contact(c *gin.Context) {
 
 func defaultCalculationForm() models.CalculationForm {
 	return models.CalculationForm{
-		MortgageAmount:     150000,
-		Years:              25,
-		AnnualInterest:     3.0,
-		Age:                40,
-		HomeInsuranceBonus: 0.0,
-		LifeInsuranceBonus: 0.3,
-		OtherBonuses:       0.0,
-		Coverage:           "death",
+		MortgageAmount:       300000,
+		Years:                20,
+		AnnualInterest:       3.0,
+		Age:                  55,
+		BankInsuranceMonthly: 350,
+		HomeInsuranceBonus:   0.0,
+		LifeInsuranceBonus:   0.15,
+		OtherBonuses:         0.0,
+		Coverage:             "death",
 	}
 }
 
@@ -79,53 +78,47 @@ func parseCalculationForm(c *gin.Context) models.CalculationForm {
 	years, _ := strconv.Atoi(c.PostForm("years"))
 	annualRate, _ := strconv.ParseFloat(c.PostForm("annualInterest"), 64)
 	age, _ := strconv.Atoi(c.PostForm("age"))
-	homeBonus, _ := strconv.ParseFloat(c.PostForm("homeInsuranceBonus"), 64)
 	lifeBonus, _ := strconv.ParseFloat(c.PostForm("lifeInsuranceBonus"), 64)
-	otherBonus, _ := strconv.ParseFloat(c.PostForm("otherBonuses"), 64)
-	coverage := strings.TrimSpace(c.PostForm("coverage"))
-	if coverage == "" {
-		coverage = "death"
-	}
+	bankInsuranceMonthly, _ := strconv.ParseFloat(c.PostForm("bankInsuranceMonthly"), 64)
 
 	return models.CalculationForm{
-		MortgageAmount:     principal,
-		Years:              years,
-		AnnualInterest:     annualRate,
-		Age:                age,
-		HomeInsuranceBonus: homeBonus,
-		LifeInsuranceBonus: lifeBonus,
-		OtherBonuses:       otherBonus,
-		Coverage:           coverage,
+		MortgageAmount:       clampFloat(principal, 1000, 2000000),
+		Years:                clampInt(years, 1, 40),
+		AnnualInterest:       clampFloat(annualRate, 0.01, 15),
+		Age:                  clampInt(age, 18, 85),
+		BankInsuranceMonthly: clampFloat(bankInsuranceMonthly, 50, 1000),
+		LifeInsuranceBonus:   clampFloat(lifeBonus, 0, 5),
 	}
 }
 
+func clampFloat(value, minimum, maximum float64) float64 {
+	if value < minimum {
+		return minimum
+	}
+	if value > maximum {
+		return maximum
+	}
+	return value
+}
+
+func clampInt(value, minimum, maximum int) int {
+	if value < minimum {
+		return minimum
+	}
+	if value > maximum {
+		return maximum
+	}
+	return value
+}
+
 func buildResult(form models.CalculationForm) calculator.Result {
-	return calculator.CalculateCase(
+	return calculator.CalculateScenario(
 		form.MortgageAmount,
 		form.Years,
 		form.AnnualInterest,
 		form.Age,
-		form.HomeInsuranceBonus,
 		form.LifeInsuranceBonus,
-		form.OtherBonuses,
-		estimateBankPremium(form.MortgageAmount, form.Age, form.Coverage),
-		estimateExternalPremium(form.MortgageAmount, form.Age, form.Coverage),
-		form.Coverage,
+		form.BankInsuranceMonthly,
+		calculator.ExternalInsurancePremium(form.MortgageAmount, form.Age),
 	)
-}
-
-func estimateBankPremium(capital float64, age int, coverage string) float64 {
-	premium := calculator.EstimatePremium(capital, age, coverage)
-	if premium <= 0 {
-		return 45
-	}
-	return premium
-}
-
-func estimateExternalPremium(capital float64, age int, coverage string) float64 {
-	premium := estimateBankPremium(capital, age, coverage) * 0.6
-	if premium < 15 {
-		return 15
-	}
-	return premium
 }
