@@ -1,0 +1,44 @@
+{{ define "index.html" }}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .title }}</title>
+    <meta name="description"
+        content="Compare el ahorro real de la bonificación hipotecaria y si merece la pena cambiar de seguro." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slateblue: '#4c7b86',
+                        softgreen: '#9cc7aa',
+                        warmbeige: '#f5efe6',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-stone-50 text-slate-700 antialiased">
+    {{ template "header.html" . }}
+
+    <main class="pt-8">
+        {{ template "hero.html" . }}
+        {{ template "insurance-comparison.html" . }}
+        {{ template "mortgage-form.html" . }}
+        {{ if .result }}{{ template "results-cards.html" . }}{{ end }}
+        {{ template "contact-form.html" . }}
+    </main>
+
+    {{ template "footer.html" . }}
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
+{{ end }}
