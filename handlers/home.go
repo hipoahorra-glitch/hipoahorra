@@ -148,7 +148,7 @@ func parseCalculationForm(c *gin.Context) models.CalculationForm {
 		Years:                clampInt(years, 1, 40),
 		AnnualInterest:       clampFloat(annualRate, 0.01, 15),
 		Age:                  clampInt(age, 18, 85),
-		BankInsuranceMonthly: clampFloat(bankInsuranceMonthly, 50, 1000),
+		BankInsuranceMonthly: clampFloat(bankInsuranceMonthly, 0, 3000),
 		LifeInsuranceBonus:   clampFloat(lifeBonus, 0, 5),
 	}
 }

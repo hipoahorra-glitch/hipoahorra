@@ -68,13 +68,14 @@
                     <label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
                         <span>Seguro de vida del banco</span>
                         <div class="relative">
-                            <input type="number" step="0.01" min="0" max="1500" name="bankInsuranceMonthly" inputmode="decimal"
+                            <input type="number" step="0.01" min="0" max="3000" name="bankInsuranceMonthly" inputmode="decimal"
                                 value="{{ if .form }}{{ .form.BankInsuranceMonthly }}{{ else }}350{{ end }}" required
                                 placeholder="350"
                                 class="min-h-[48px] w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 pr-12 outline-none transition focus:border-slateblue" />
                             <span
                                 class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-slate-500">€/mes</span>
                         </div>
+                        <span class="text-xs leading-5 text-slate-500">Introduce un importe entre 0 y 3.000 €/mes.</span>
                     </label>
                     <label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
                         <span>Bonificación por contratar el seguro</span>
