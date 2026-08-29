@@ -4,6 +4,25 @@ document.addEventListener('DOMContentLoaded', () => {
         maximumFractionDigits: 2
     }).format(value);
     const calculatorForm = document.querySelector('form[action="/calcular#resultados"]');
+    const contactForm = document.querySelector('[data-contact-form]');
+    const contactStatus = contactForm?.querySelector('[data-contact-status]');
+
+    contactForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        try {
+            const response = await fetch(contactForm.action, { method: 'POST', headers: { Accept: 'application/json' }, body: new URLSearchParams(new FormData(contactForm)) });
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.message || 'No se pudo enviar la consulta.');
+            contactStatus.textContent = payload.message;
+            contactStatus.className = 'rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-700';
+            contactForm.reset();
+        } catch (error) {
+            contactStatus.textContent = error.message || 'No se pudo enviar la consulta. Inténtalo de nuevo más tarde.';
+            contactStatus.className = 'rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700';
+        } finally { submitButton.disabled = false; }
+    });
 
     if (!calculatorForm) {
         return;

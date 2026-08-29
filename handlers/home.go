@@ -60,11 +60,19 @@ func Contact(c *gin.Context) {
 
 	if err := sendContactEmail(form); err != nil {
 		log.Printf("No se pudo enviar la consulta de contacto: %v", err)
+		if c.GetHeader("Accept") == "application/json" {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "No se pudo enviar la consulta. Inténtalo de nuevo más tarde."})
+			return
+		}
 		c.String(http.StatusInternalServerError, "No se pudo enviar la consulta. Inténtalo de nuevo más tarde.")
 		return
 	}
 
 	log.Printf("Consulta de contacto enviada correctamente")
+	if c.GetHeader("Accept") == "application/json" {
+		c.JSON(http.StatusOK, gin.H{"message": "Hemos recibido tu consulta. Te contactaremos pronto."})
+		return
+	}
 	c.Redirect(http.StatusSeeOther, "/")
 }
 
