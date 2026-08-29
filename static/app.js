@@ -354,6 +354,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (switchingSavingsElement) {
                     switchingSavingsElement.textContent = `${switchingSavings > 0 ? '+' : ''}${formatNumber(switchingSavings)}`;
+                    switchingSavingsElement.classList.toggle('text-emerald-700', isPositive);
+                    switchingSavingsElement.classList.toggle('text-red-600', !isPositive);
                 }
                 if (switchingMessage) {
                     switchingMessage.textContent = isPositive
