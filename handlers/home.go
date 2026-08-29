@@ -20,9 +20,17 @@ func Home(c *gin.Context) {
 	form := defaultCalculationForm()
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title":       "Comparador de ahorro hipotecario",
-		"form":        form,
-		"showResults": false,
+		"title":          "Comparador de ahorro hipotecario",
+		"form":           form,
+		"showResults":    false,
+		"showLandingNav": true,
+	})
+}
+
+func DataProtectionPolicy(c *gin.Context) {
+	c.HTML(http.StatusOK, "privacy.html", gin.H{
+		"title":          "Política de protección de datos",
+		"showLandingNav": false,
 	})
 }
 
@@ -31,10 +39,11 @@ func Calculate(c *gin.Context) {
 	result := buildResult(form)
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title":       "Comparador de ahorro hipotecario",
-		"result":      result,
-		"form":        form,
-		"showResults": true,
+		"title":          "Comparador de ahorro hipotecario",
+		"result":         result,
+		"form":           form,
+		"showResults":    true,
+		"showLandingNav": true,
 	})
 }
 
@@ -50,13 +59,12 @@ func CalculateJSON(c *gin.Context) {
 
 func Contact(c *gin.Context) {
 	form := models.ContactForm{
-		Name:          strings.TrimSpace(c.PostForm("name")),
-		Email:         strings.TrimSpace(c.PostForm("email")),
-		Phone:         strings.TrimSpace(c.PostForm("phone")),
-		PendingAmount: strings.TrimSpace(c.PostForm("pendingAmount")),
-		Message:       strings.TrimSpace(c.PostForm("message")),
+		Name:    strings.TrimSpace(c.PostForm("name")),
+		Email:   strings.TrimSpace(c.PostForm("email")),
+		Phone:   strings.TrimSpace(c.PostForm("phone")),
+		Message: strings.TrimSpace(c.PostForm("message")),
 	}
-	log.Printf("Consulta de contacto recibida: Nombre=%q | Email=%q | Teléfono=%q | Importe pendiente=%q | Mensaje=%q", form.Name, form.Email, form.Phone, form.PendingAmount, form.Message)
+	log.Printf("Consulta de contacto recibida: Nombre=%q | Email=%q | Teléfono=%q | Mensaje=%q", form.Name, form.Email, form.Phone, form.Message)
 
 	if err := sendContactEmail(form); err != nil {
 		log.Printf("No se pudo enviar la consulta de contacto: %v", err)
@@ -98,7 +106,7 @@ func sendContactEmail(form models.ContactForm) error {
 
 	subjectName := strings.NewReplacer("\r", " ", "\n", " ").Replace(form.Name)
 	subject := fmt.Sprintf("Nueva consulta de hipoteca – %s", subjectName)
-	body := fmt.Sprintf("Me gustaría recibir más información sobre mis opciones hipotecarias.\n\nNombre: %s\n\nEmail: %s\n\nTeléfono: %s\n\nImporte pendiente de hipoteca: %s\n\nMensaje:\n\n%s\n", form.Name, form.Email, form.Phone, form.PendingAmount, form.Message)
+	body := fmt.Sprintf("Me gustaría recibir más información sobre mis opciones hipotecarias.\n\nNombre: %s\n\nEmail: %s\n\nTeléfono: %s\n\nMensaje:\n\n%s\n", form.Name, form.Email, form.Phone, form.Message)
 	message := strings.Join([]string{
 		"From: " + from,
 		"To: hipoahorra@gmail.com",

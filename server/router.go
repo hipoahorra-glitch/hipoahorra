@@ -29,6 +29,8 @@ func NewRouter() *gin.Engine {
 
 	r.GET("/", handlers.Home)
 	r.HEAD("/", handlers.Home)
+	r.GET("/politica-proteccion-datos", handlers.DataProtectionPolicy)
+	r.HEAD("/politica-proteccion-datos", handlers.DataProtectionPolicy)
 	r.POST("/calcular", handlers.Calculate)
 	r.POST("/api/calcular", handlers.CalculateJSON)
 	r.POST("/contacto", handlers.Contact)

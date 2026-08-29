@@ -35,7 +35,14 @@ func nnFallecimientoPremium(capital float64, age int) float64 {
 		return interpolateCapital(capital, tariffCapitals, nnFallecimientoTariff[firstAge])
 	}
 	if age >= lastAge {
-		return interpolateCapital(capital, tariffCapitals, nnFallecimientoTariff[lastAge])
+		last := interpolateCapital(capital, tariffCapitals, nnFallecimientoTariff[lastAge])
+		previous := interpolateCapital(capital, tariffCapitals, nnFallecimientoTariff[lastAge-1])
+		annualStep := last - previous
+		projected := last + annualStep*float64(age-lastAge)
+		if projected < 0 {
+			return 0
+		}
+		return projected
 	}
 	lowerAge := age
 	upperAge := age + 1

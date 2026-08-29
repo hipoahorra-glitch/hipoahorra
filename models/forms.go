@@ -13,9 +13,8 @@ type CalculationForm struct {
 }
 
 type ContactForm struct {
-	Name          string
-	Email         string
-	Phone         string
-	PendingAmount string
-	Message       string
+	Name    string
+	Email   string
+	Phone   string
+	Message string
 }

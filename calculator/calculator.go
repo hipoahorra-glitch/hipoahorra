@@ -39,6 +39,15 @@ type Result struct {
 	NetSavings                   float64 `json:"netSavings"`
 	DiscountedRate               float64 `json:"discountedRate"`
 	BankTariffMonthly            float64 `json:"bankTariffMonthly"`
+	BankTariffAnnual             float64 `json:"bankTariffAnnual"`
+	InsuranceTariffDifference    float64 `json:"insuranceTariffDifference"`
+	InsuranceChartStartAge       int     `json:"insuranceChartStartAge"`
+	InsuranceChartEndAge         int     `json:"insuranceChartEndAge"`
+	InsuranceChartYears          int     `json:"insuranceChartYears"`
+	InsuranceChartEstimatedSave  float64 `json:"insuranceChartEstimatedSave"`
+	InsuranceChartGrossSave      float64 `json:"insuranceChartGrossSave"`
+	InsuranceChartLostBonus      float64 `json:"insuranceChartLostBonus"`
+	InsuranceChartNetSave        float64 `json:"insuranceChartNetSave"`
 	InsuranceChartJSON           string  `json:"insuranceChartJSON"`
 }
 
@@ -56,6 +65,22 @@ func (r Result) InsuranceAnnualDifferenceForDisplay() float64 {
 
 func (r Result) InsuranceMonthlyDifferenceForDisplay() float64 {
 	return r.InsuranceAnnualDifferenceForDisplay() / 12
+}
+
+func (r Result) InsuranceTariffDifferenceForDisplay() float64 {
+	return math.Abs(r.InsuranceTariffDifference)
+}
+
+func (r Result) InsuranceChartGrossSaveForDisplay() float64 {
+	return math.Abs(r.InsuranceChartGrossSave)
+}
+
+func (r Result) InsuranceChartLostBonusForDisplay() float64 {
+	return math.Abs(r.InsuranceChartLostBonus)
+}
+
+func (r Result) InsuranceChartNetSaveForDisplay() float64 {
+	return math.Abs(r.InsuranceChartNetSave)
 }
 
 func (r Result) AnnualSwitchingSavingsForDisplay() float64 {
@@ -139,6 +164,18 @@ func CalculateScenario(principal float64, years int, annualRatePct float64, age 
 		annualLostBonusCost = interestSavings / float64(years)
 	}
 	annualSwitchingSavings := bankAnnual - externalAnnual - annualLostBonusCost
+	bankTariffMonthly := BankInsurancePremium(principal, age)
+	bankTariffAnnual := bankTariffMonthly * 12
+	chartStartAge := normalizedChartAge(age)
+	chartEndAge := insuranceChartEndAge(age, years)
+	chartYears := chartEndAge - chartStartAge + 1
+	chartJSON, chartEstimatedSave := insuranceChartJSON(principal, age, years)
+	effectiveYears := chartEndAge - age + 1
+	if effectiveYears < 0 {
+		effectiveYears = 0
+	}
+	chartLostBonus := annualLostBonusCost * float64(effectiveYears)
+	chartNetSave := chartEstimatedSave - chartLostBonus
 
 	return Result{
 		MortgageAmount:               principal,
@@ -166,23 +203,68 @@ func CalculateScenario(principal float64, years int, annualRatePct float64, age 
 		NetSavings:                   netSavings,
 		DiscountedRate:               discountedRate,
 		Compensates:                  netSavings > 0,
-		BankTariffMonthly:            BankInsurancePremium(principal, age),
-		InsuranceChartJSON:           insuranceChartJSON(principal),
+		BankTariffMonthly:            bankTariffMonthly,
+		BankTariffAnnual:             bankTariffAnnual,
+		InsuranceTariffDifference:    bankTariffAnnual - externalAnnual,
+		InsuranceChartStartAge:       chartStartAge,
+		InsuranceChartEndAge:         chartEndAge,
+		InsuranceChartYears:          chartYears,
+		InsuranceChartEstimatedSave:  chartEstimatedSave,
+		InsuranceChartGrossSave:      chartEstimatedSave,
+		InsuranceChartLostBonus:      chartLostBonus,
+		InsuranceChartNetSave:        chartNetSave,
+		InsuranceChartJSON:           chartJSON,
 	}
 }
 
-func insuranceChartJSON(capital float64) string {
-	type point struct {
-		Age      int     `json:"age"`
-		Bank     float64 `json:"bank"`
-		External float64 `json:"external"`
+func normalizedChartAge(age int) int {
+	return 30
+}
+
+func insuranceChartEndAge(age, years int) int {
+	endAge := age + years - 1
+	if endAge < 30 {
+		endAge = 30
 	}
-	points := make([]point, 0, 30)
-	for age := 30; age <= 59; age++ {
-		points = append(points, point{Age: age, Bank: BankInsurancePremium(capital, age), External: nnFallecimientoPremium(capital, age)})
+	if endAge > 70 {
+		return 70
+	}
+	return endAge
+}
+
+func insuranceChartJSON(capital float64, age int, years int) (string, float64) {
+	type point struct {
+		Age              int     `json:"age"`
+		BankAnnual       float64 `json:"bankAnnual"`
+		ExternalAnnual   float64 `json:"externalAnnual"`
+		AnnualSaving     float64 `json:"annualSaving"`
+		CumulativeSaving float64 `json:"cumulativeSaving"`
+		IsCurrentAge     bool    `json:"isCurrentAge"`
+	}
+	startAge := normalizedChartAge(age)
+	endAge := insuranceChartEndAge(age, years)
+	points := make([]point, 0, endAge-startAge+1)
+	totalSaving := 0.0
+	currentAgeSaving := 0.0
+	for currentAge := startAge; currentAge <= endAge; currentAge++ {
+		bankAnnual := BankInsurancePremium(capital, currentAge) * 12
+		externalAnnual := nnFallecimientoPremium(capital, currentAge) * 12
+		annualSaving := bankAnnual - externalAnnual
+		totalSaving += annualSaving
+		if currentAge >= age {
+			currentAgeSaving += annualSaving
+		}
+		points = append(points, point{
+			Age:              currentAge,
+			BankAnnual:       bankAnnual,
+			ExternalAnnual:   externalAnnual,
+			AnnualSaving:     annualSaving,
+			CumulativeSaving: totalSaving,
+			IsCurrentAge:     currentAge == age,
+		})
 	}
 	data, _ := json.Marshal(points)
-	return string(data)
+	return string(data), currentAgeSaving
 }
 
 // CalculateCase computes the mortgage and insurance comparison.
