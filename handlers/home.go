@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"mortgage-bonus-calculator/calculator"
 	"mortgage-bonus-calculator/models"
@@ -71,7 +72,12 @@ func sendContactEmail(form models.ContactForm) error {
 	host := strings.TrimSpace(os.Getenv("SMTP_HOST"))
 	port := strings.TrimSpace(os.Getenv("SMTP_PORT"))
 	username := strings.TrimSpace(os.Getenv("SMTP_USERNAME"))
-	password := os.Getenv("SMTP_PASSWORD")
+	password := strings.Map(func(character rune) rune {
+		if unicode.IsSpace(character) {
+			return -1
+		}
+		return character
+	}, os.Getenv("SMTP_PASSWORD"))
 	from := strings.TrimSpace(os.Getenv("SMTP_FROM"))
 	if host == "" || port == "" || username == "" || password == "" || from == "" {
 		return fmt.Errorf("SMTP configuration is incomplete")
@@ -80,6 +86,7 @@ func sendContactEmail(form models.ContactForm) error {
 		return fmt.Errorf("SMTP configuration contains an invalid line break")
 	}
 	log.Printf("SMTP preparado: Host=%q | Puerto=%q | Usuario=%q | Remitente=%q | Destinatario=%q", host, port, username, from, "hipoahorra@gmail.com")
+	log.Printf("SMTP_PASSWORD recibido: longitud=%d caracteres", len(password))
 
 	subjectName := strings.NewReplacer("\r", " ", "\n", " ").Replace(form.Name)
 	subject := fmt.Sprintf("Nueva consulta de hipoteca – %s", subjectName)
