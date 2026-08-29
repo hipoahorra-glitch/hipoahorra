@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/smtp"
+	"os"
 	"strconv"
 	"strings"
 
@@ -54,9 +56,41 @@ func Contact(c *gin.Context) {
 		Message:       strings.TrimSpace(c.PostForm("message")),
 	}
 
-	log.Printf("Nueva solicitud de contacto: %+v", form)
+	if err := sendContactEmail(form); err != nil {
+		log.Printf("No se pudo enviar la consulta de contacto: %v", err)
+		c.String(http.StatusInternalServerError, "No se pudo enviar la consulta. Inténtalo de nuevo más tarde.")
+		return
+	}
+
 	fmt.Println("Formulario de contacto enviado")
 	c.Redirect(http.StatusSeeOther, "/")
+}
+
+func sendContactEmail(form models.ContactForm) error {
+	host := os.Getenv("SMTP_HOST")
+	port := os.Getenv("SMTP_PORT")
+	username := os.Getenv("SMTP_USERNAME")
+	password := os.Getenv("SMTP_PASSWORD")
+	from := os.Getenv("SMTP_FROM")
+	if host == "" || port == "" || username == "" || password == "" || from == "" {
+		return fmt.Errorf("SMTP configuration is incomplete")
+	}
+
+	subjectName := strings.NewReplacer("\r", " ", "\n", " ").Replace(form.Name)
+	subject := fmt.Sprintf("Nueva consulta de hipoteca – %s", subjectName)
+	body := fmt.Sprintf("Me gustaría recibir más información sobre mis opciones hipotecarias.\n\nNombre: %s\n\nEmail: %s\n\nTeléfono: %s\n\nImporte pendiente de hipoteca: %s\n\nMensaje:\n\n%s\n", form.Name, form.Email, form.Phone, form.PendingAmount, form.Message)
+	message := strings.Join([]string{
+		"From: " + from,
+		"To: hipoahorra@gmail.com",
+		"Subject: " + subject,
+		"MIME-Version: 1.0",
+		"Content-Type: text/plain; charset=UTF-8",
+		"",
+		body,
+	}, "\r\n")
+
+	auth := smtp.PlainAuth("", username, password, host)
+	return smtp.SendMail(host+":"+port, auth, from, []string{"hipoahorra@gmail.com"}, []byte(message))
 }
 
 func defaultCalculationForm() models.CalculationForm {

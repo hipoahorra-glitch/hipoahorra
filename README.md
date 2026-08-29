@@ -79,6 +79,21 @@ You can override the port:
 PORT=3000 go run .
 ```
 
+## Contact Email
+
+The contact form sends submissions to `hipoahorra@gmail.com`. Configure SMTP before running the app:
+
+```bash
+export SMTP_HOST=smtp.gmail.com
+export SMTP_PORT=587
+export SMTP_USERNAME=your-sender@gmail.com
+export SMTP_PASSWORD=your-gmail-app-password
+export SMTP_FROM=your-sender@gmail.com
+go run .
+```
+
+For Gmail, use an App Password rather than the account password.
+
 ## Test
 
 Run all tests:
