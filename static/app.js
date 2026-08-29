@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactLink = document.querySelector('[data-live-contact]');
     const switchingSavingsElement = document.querySelector('[data-live-switching-savings]');
     const switchingMonthly = document.querySelector('[data-live-switching-monthly]');
+    const switchingLabel = document.querySelector('[data-live-switching-label]');
+    const switchingMessage = document.querySelector('[data-live-switching-message]');
     const detailBasePayment = document.querySelector('[data-live-base-payment]');
     const detailDiscountedPayment = document.querySelector('[data-live-discounted-payment]');
     const detailDiscountedRate = document.querySelector('[data-live-discounted-rate]');
@@ -347,11 +349,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (contactLink) {
                     contactLink.classList.toggle('hidden', !isPositive);
                 }
+                if (switchingLabel) {
+                    switchingLabel.textContent = isPositive ? 'Puedes ahorrar' : 'A dia de hoy perderias';
+                }
                 if (switchingSavingsElement) {
                     switchingSavingsElement.textContent = `${switchingSavings > 0 ? '+' : ''}${formatNumber(switchingSavings)}`;
                 }
+                if (switchingMessage) {
+                    switchingMessage.textContent = isPositive
+                        ? 'Ahorro anual neto despues de tener en cuenta la perdida de la bonificacion.'
+                        : 'Aun no merece la pena cambiarlo: la perdida de la bonificacion supera el ahorro del seguro externo.';
+                }
                 if (switchingMonthly) {
-                    switchingMonthly.textContent = `${switchingSavings > 0 ? '+' : ''}${formatNumber(switchingSavings / 12)}`;
+                    switchingMonthly.textContent = `${switchingSavings > 0 ? '+' : switchingSavings < 0 ? '-' : ''}${formatNumber(Math.abs(switchingSavings / 12))}`;
                 }
                 if (detailBasePayment) {
                     detailBasePayment.textContent = `${formatNumber(payload.result.monthlyPaymentWithoutBonuses ?? 0)} €/mes`;
