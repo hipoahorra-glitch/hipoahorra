@@ -55,6 +55,7 @@ func Contact(c *gin.Context) {
 		PendingAmount: strings.TrimSpace(c.PostForm("pendingAmount")),
 		Message:       strings.TrimSpace(c.PostForm("message")),
 	}
+	log.Printf("Consulta de contacto recibida: Nombre=%q | Email=%q | Teléfono=%q | Importe pendiente=%q | Mensaje=%q", form.Name, form.Email, form.Phone, form.PendingAmount, form.Message)
 
 	if err := sendContactEmail(form); err != nil {
 		log.Printf("No se pudo enviar la consulta de contacto: %v", err)
@@ -62,19 +63,23 @@ func Contact(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Formulario de contacto enviado")
+	log.Printf("Consulta de contacto enviada correctamente")
 	c.Redirect(http.StatusSeeOther, "/")
 }
 
 func sendContactEmail(form models.ContactForm) error {
-	host := os.Getenv("SMTP_HOST")
-	port := os.Getenv("SMTP_PORT")
-	username := os.Getenv("SMTP_USERNAME")
+	host := strings.TrimSpace(os.Getenv("SMTP_HOST"))
+	port := strings.TrimSpace(os.Getenv("SMTP_PORT"))
+	username := strings.TrimSpace(os.Getenv("SMTP_USERNAME"))
 	password := os.Getenv("SMTP_PASSWORD")
-	from := os.Getenv("SMTP_FROM")
+	from := strings.TrimSpace(os.Getenv("SMTP_FROM"))
 	if host == "" || port == "" || username == "" || password == "" || from == "" {
 		return fmt.Errorf("SMTP configuration is incomplete")
 	}
+	if strings.ContainsAny(host+port+username+from, "\r\n") {
+		return fmt.Errorf("SMTP configuration contains an invalid line break")
+	}
+	log.Printf("SMTP preparado: Host=%q | Puerto=%q | Usuario=%q | Remitente=%q | Destinatario=%q", host, port, username, from, "hipoahorra@gmail.com")
 
 	subjectName := strings.NewReplacer("\r", " ", "\n", " ").Replace(form.Name)
 	subject := fmt.Sprintf("Nueva consulta de hipoteca – %s", subjectName)
