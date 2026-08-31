@@ -5,24 +5,23 @@ import (
 	"html/template"
 	"io/fs"
 	"mortgage-bonus-calculator/handlers"
-	"mortgage-bonus-calculator/webassets"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter() *gin.Engine {
+func NewRouter(assets fs.FS) *gin.Engine {
 	r := gin.Default()
 
-	staticFS := mustSubFS("static")
+	staticFS := mustSubFS(assets, "static")
 	r.StaticFS("/static", http.FS(staticFS))
 	r.SetHTMLTemplate(template.Must(template.New("index.html").Funcs(template.FuncMap{
 		"formatNumber": formatNumber,
 		"printf":       formatPrintf,
 		"mul":          func(left, right float64) float64 { return left * right },
 	}).ParseFS(
-		webassets.FS,
+		assets,
 		"templates/*.html",
 		"templates/partials/*.html",
 	)))
@@ -63,8 +62,8 @@ func formatNumber(value float64) string {
 	return integer + "," + parts[1]
 }
 
-func mustSubFS(name string) fs.FS {
-	subFS, err := fs.Sub(webassets.FS, name)
+func mustSubFS(assets fs.FS, name string) fs.FS {
+	subFS, err := fs.Sub(assets, name)
 	if err != nil {
 		panic("failed to load embedded assets: " + err.Error())
 	}

@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -15,7 +16,7 @@ func TestHomeRouteRendersSuccessfully(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	NewRouter().ServeHTTP(w, req)
+	NewRouter(os.DirFS("..")).ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
@@ -33,7 +34,7 @@ func TestDataProtectionPolicyRouteRendersSuccessfully(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/politica-proteccion-datos", nil)
 	w := httptest.NewRecorder()
 
-	NewRouter().ServeHTTP(w, req)
+	NewRouter(os.DirFS("..")).ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
