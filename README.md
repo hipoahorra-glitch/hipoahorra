@@ -1,6 +1,6 @@
 # Mortgage Bonus Calculator
 
-# hipoahorra
+# hipoahorro
 
 Small Go web app for comparing whether a bank's mortgage rate bonus offsets the cost of bundled insurance.
 
