@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(payload.message || 'No se pudo enviar la consulta.');
             contactStatus.textContent = payload.message;
             contactStatus.className = 'rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-700';
+            if (typeof window.gtag_report_conversion === 'function') {
+                window.gtag_report_conversion();
+            }
             contactForm.reset();
         } catch (error) {
             contactStatus.textContent = error.message || 'No se pudo enviar la consulta. Inténtalo de nuevo más tarde.';
