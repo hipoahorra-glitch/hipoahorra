@@ -21,6 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(payload.message || 'No se pudo enviar la consulta.');
             contactStatus.textContent = payload.message;
             contactStatus.className = 'rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-700';
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'contact_form_success',
+                form_name: 'contacto'
+            });
             if (typeof window.gtag_report_conversion === 'function') {
                 window.gtag_report_conversion();
             }
